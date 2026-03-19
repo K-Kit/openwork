@@ -1,0 +1,19 @@
+# Den Web (Cloud App) — Railway service config
+#
+# Required env vars:
+#   DEN_API_BASE            — Internal URL of the Den control plane service
+#   DEN_AUTH_ORIGIN         — Public-facing origin for auth callbacks
+#
+# Optional env vars:
+#   NEXT_PUBLIC_OPENWORK_APP_CONNECT_URL  — Base URL for "Open in App" links
+#   NEXT_PUBLIC_OPENWORK_AUTH_CALLBACK_URL — Canonical auth callback URL
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "packaging/railway/Dockerfile.den-web"
+
+[deploy]
+healthcheckPath = "/api/den/health"
+healthcheckTimeout = 180
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

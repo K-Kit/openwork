@@ -1,0 +1,22 @@
+# OpenWork Host — Railway service config
+#
+# Deploys the OpenWork orchestrator (opencode + openwork-server) in a single container.
+# Uses the existing production Dockerfile from packaging/docker/Dockerfile.
+#
+# Required env vars (set in Railway dashboard):
+#   OPENWORK_TOKEN          — client bearer token (auto-generated if empty)
+#   OPENWORK_HOST_TOKEN     — host/admin token (auto-generated if empty)
+#
+# Optional env vars:
+#   OPENWORK_APPROVAL_MODE  — "auto" or "manual" (default: manual)
+#   OPENWORK_APPROVAL_TIMEOUT_MS — timeout in ms (default: 30000)
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "packaging/docker/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

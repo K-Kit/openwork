@@ -1,0 +1,68 @@
+{
+  "name": "OpenWork",
+  "description": "AI coworker for you and your team. Run agents, skills, and MCPs. Open-source alternative to Claude Cowork/Codex.",
+  "icon": "https://openwork.software/favicon.ico",
+  "services": {
+    "openwork-host": {
+      "name": "OpenWork Host",
+      "description": "Orchestrator running opencode + openwork-server in a single container",
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "packaging/railway/Dockerfile.host"
+      },
+      "deploy": {
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 120,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 5
+      },
+      "networking": {
+        "servicePort": 8787
+      },
+      "volumes": {
+        "workspace": {
+          "mountPath": "/workspace"
+        },
+        "data": {
+          "mountPath": "/data"
+        }
+      },
+      "envs": {
+        "PORT": {
+          "description": "Service port (Railway injects this)",
+          "default": "8787"
+        },
+        "OPENWORK_TOKEN": {
+          "description": "Client bearer token for connecting OpenWork apps",
+          "required": false,
+          "generate": true
+        },
+        "OPENWORK_HOST_TOKEN": {
+          "description": "Host/admin token for approvals and admin APIs",
+          "required": false,
+          "generate": true
+        },
+        "OPENWORK_APPROVAL_MODE": {
+          "description": "Approval mode: 'auto' (auto-approve all) or 'manual' (require host approval)",
+          "default": "manual"
+        },
+        "OPENWORK_APPROVAL_TIMEOUT_MS": {
+          "description": "Timeout in ms for manual approval requests",
+          "default": "30000"
+        },
+        "OPENWORK_CORS_ORIGINS": {
+          "description": "Comma-separated CORS origins or '*' for all",
+          "default": "*"
+        },
+        "OPENWORK_DATA_DIR": {
+          "description": "Persistent data directory inside the container",
+          "default": "/data/openwork-orchestrator"
+        },
+        "OPENWORK_SIDECAR_DIR": {
+          "description": "Sidecar binary cache directory",
+          "default": "/data/sidecars"
+        }
+      }
+    }
+  }
+}

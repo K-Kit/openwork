@@ -1,0 +1,23 @@
+# Den Control Plane — Railway service config
+#
+# Required env vars:
+#   DATABASE_URL            — MySQL connection string (from Railway MySQL plugin)
+#   BETTER_AUTH_SECRET      — 32+ char secret for Better Auth
+#   BETTER_AUTH_URL         — Public URL of the den-web service (for OAuth callbacks)
+#   CORS_ORIGINS            — Comma-separated trusted browser origins
+#
+# Optional env vars:
+#   PROVISIONER_MODE        — "stub" | "render" | "daytona" (default: stub)
+#   GITHUB_CLIENT_ID        — GitHub OAuth app client ID
+#   GITHUB_CLIENT_SECRET    — GitHub OAuth app secret
+#   WORKER_URL_TEMPLATE     — Template with {workerId} placeholder
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "packaging/railway/Dockerfile.den"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

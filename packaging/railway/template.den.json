@@ -1,0 +1,128 @@
+{
+  "name": "OpenWork Cloud (Den)",
+  "description": "Full OpenWork Cloud stack: Den control plane + web app + MySQL. Provides user auth, worker provisioning, and the cloud web interface.",
+  "services": {
+    "mysql": {
+      "name": "MySQL",
+      "description": "Database for the Den control plane",
+      "image": "mysql:8.4",
+      "deploy": {
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE"
+      },
+      "networking": {
+        "servicePort": 3306
+      },
+      "volumes": {
+        "mysql-data": {
+          "mountPath": "/var/lib/mysql"
+        }
+      },
+      "envs": {
+        "MYSQL_ROOT_PASSWORD": {
+          "description": "MySQL root password",
+          "required": true,
+          "generate": true
+        },
+        "MYSQL_DATABASE": {
+          "description": "Database name",
+          "default": "openwork_den"
+        }
+      }
+    },
+    "den-controller": {
+      "name": "Den Control Plane",
+      "description": "Better Auth + worker CRUD + provisioning hooks",
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "packaging/railway/Dockerfile.den"
+      },
+      "deploy": {
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 120,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 5
+      },
+      "networking": {
+        "servicePort": 8788
+      },
+      "envs": {
+        "DATABASE_URL": {
+          "description": "MySQL connection URL (use Railway's MySQL service reference: mysql://root:${{mysql.MYSQL_ROOT_PASSWORD}}@${{mysql.RAILWAY_PRIVATE_DOMAIN}}:3306/openwork_den)",
+          "required": true
+        },
+        "BETTER_AUTH_SECRET": {
+          "description": "32+ character secret for Better Auth session signing",
+          "required": true,
+          "generate": true
+        },
+        "BETTER_AUTH_URL": {
+          "description": "Public URL of the den-web service (for OAuth callbacks)",
+          "required": true
+        },
+        "PORT": {
+          "default": "8788"
+        },
+        "CORS_ORIGINS": {
+          "description": "Comma-separated trusted browser origins",
+          "required": true
+        },
+        "PROVISIONER_MODE": {
+          "description": "Worker provisioner: stub | render | daytona",
+          "default": "stub"
+        },
+        "GITHUB_CLIENT_ID": {
+          "description": "GitHub OAuth app client ID (optional, for social sign-in)",
+          "required": false
+        },
+        "GITHUB_CLIENT_SECRET": {
+          "description": "GitHub OAuth app client secret",
+          "required": false
+        },
+        "WORKER_URL_TEMPLATE": {
+          "description": "Template with {workerId} placeholder for stub mode",
+          "required": false
+        }
+      }
+    },
+    "den-web": {
+      "name": "Den Web App",
+      "description": "Next.js frontend for app.openwork.software",
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "packaging/railway/Dockerfile.den-web"
+      },
+      "deploy": {
+        "healthcheckPath": "/api/den/health",
+        "healthcheckTimeout": 180,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 5
+      },
+      "networking": {
+        "servicePort": 3005
+      },
+      "envs": {
+        "DEN_API_BASE": {
+          "description": "Internal URL of the Den control plane (use Railway service reference: http://${{den-controller.RAILWAY_PRIVATE_DOMAIN}}:8788)",
+          "required": true
+        },
+        "DEN_AUTH_ORIGIN": {
+          "description": "Public-facing origin for auth callbacks (your den-web public URL)",
+          "required": true
+        },
+        "DEN_AUTH_FALLBACK_BASE": {
+          "description": "Fallback Den origin if primary returns errors",
+          "required": false
+        },
+        "NEXT_PUBLIC_OPENWORK_AUTH_CALLBACK_URL": {
+          "description": "Canonical URL for auth callbacks (same as den-web public URL)",
+          "required": false
+        },
+        "NEXT_PUBLIC_OPENWORK_APP_CONNECT_URL": {
+          "description": "Base URL for 'Open in App' deep links",
+          "required": false
+        }
+      }
+    }
+  }
+}
