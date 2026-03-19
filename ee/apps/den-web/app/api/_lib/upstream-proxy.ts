@@ -176,7 +176,7 @@ async function fetchUpstream(
   };
 
   if (body && request.method !== "GET" && request.method !== "HEAD") {
-    init.body = body as Uint8Array<ArrayBuffer>;
+    init.body = body;
   }
 
   return fetch(targetUrl, init);
