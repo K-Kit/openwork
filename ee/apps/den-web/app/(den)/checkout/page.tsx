@@ -1,9 +1,10 @@
 import { CheckoutScreen } from "../_components/checkout-screen";
 
-export default function CheckoutPage({
+export default async function CheckoutPage({
   searchParams,
 }: {
-  searchParams?: { customer_session_token?: string };
+  searchParams: Promise<{ customer_session_token?: string }>;
 }) {
-  return <CheckoutScreen customerSessionToken={searchParams?.customer_session_token ?? null} />;
+  const params = await searchParams;
+  return <CheckoutScreen customerSessionToken={params?.customer_session_token ?? null} />;
 }
