@@ -13,7 +13,7 @@
 
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "packaging/docker/Dockerfile.host"
+dockerfilePath = "packaging/railway/Dockerfile.host"
 
 [deploy]
 healthcheckPath = "/health"
